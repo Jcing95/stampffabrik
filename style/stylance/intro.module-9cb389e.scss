@@ -1,0 +1,106 @@
+
+
+.component-9cb389e {
+    flex-direction: column;
+    justify-content: center; /* Centers the child horizontally */
+    align-items: center; /* Centers the child vertically (optional) */
+
+}
+
+.logo_container-9cb389e {
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-9cb389e, .logo_glow-9cb389e{
+    width: auto;
+    height: auto;
+    max-width: 80vw;
+    max-height: 75vh;
+    aspect-ratio: auto;
+    display: block;
+    margin: 0 auto;
+    animation:
+      shake 3s infinite alternate, // Adjust the timing to sync with the techno beat
+}
+
+.logo_glow-9cb389e {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    animation:
+      shake 3s infinite alternate,
+      glow 3s infinite alternate,
+}
+
+.arrow-9cb389e {
+    * {    
+        background-color: transparent;
+    }
+
+    background-color: transparent;
+    padding-top: 8px;
+    color: white;
+    text-align: center;
+    background-color: transparent;
+    font-size: 48pt;
+    animation: bob 2s infinite;
+}
+
+// Keyframes for shaking effect
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    5% { transform: translateX(-3px); }
+    10% { transform: translateX(0) rotate(0.5deg); }
+    15% { transform: translateX(3px); }
+    20% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-3px); }
+    30% { transform: translateX(0) rotate(0.5deg); }
+    35% { transform: translateX(-3px); }
+    40% { transform: translateX(0) rotate(0deg); }
+    45% { transform: translateX(3px); }
+    50% { transform: translateX(0) rotate(-0.5deg); }
+    55% { transform: translateX(3px); }
+    60% { transform: translateX(0) rotate(0deg); }
+    65% { transform: translateX(-3px); }
+    70% { transform: translateX(0) rotate(0.5deg); }
+    75% { transform: translateX(3px); }
+    80% { transform: translateX(0) rotate(0deg); }
+    85% { transform: translateX(-3px); }
+    90% { transform: translateX(0) rotate(-0.5deg); }
+    95% { transform: translateX(3px); }
+  }
+  
+  @keyframes glow {
+    0%, 100% { opacity: .2; }
+    5%  { opacity: 0; }
+    10% { opacity: .5; }
+    15% { opacity: 0; }
+    20% { opacity: .2; }
+    25% { opacity: 0; }
+    30% { opacity: .5; }
+    35% { opacity: 0; }
+    40% { opacity: .2; }
+    45% { opacity: 0; }
+    50% { opacity: .5; }
+    55% { opacity: 0; }
+    60% { opacity: .2; }
+    65% { opacity: 0; }
+    70% { opacity: .5; }
+    75% { opacity: 0; }
+    80% { opacity: .2; }
+    85% { opacity: 0; }
+    90% { opacity: .5; }
+    95% { opacity: 0; }
+  }
+
+  // Keyframes for flashing effect
+  @keyframes bob {
+    0%, 100% { transform: translateY(0%); }
+    50% { transform: translateY(-10%); }
+  }
+  

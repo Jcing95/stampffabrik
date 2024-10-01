@@ -1,0 +1,46 @@
+@use "mixins.scss" as m;
+
+.hbar {
+    @include m.gothic;
+    display: flex;
+    justify-content: space-between;
+    background-color: black;
+    color: white;
+    text-transform: uppercase;
+    font-size: 64px;
+    padding: 16pt;
+    padding-left: 64pt;
+    width: auto; // Full width of the viewport
+    height: 64pt;
+    align-items: center;  // This centers the content vertically
+}
+
+* {
+    background-color: black;
+}
+
+.nav_icon {
+    margin-left: 16pt;
+    margin-right: 32pt;
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 64px;
+    height: 50px;
+}
+
+.nav_menu {
+    display: flex; // Flex container for menu entries
+    gap: 16pt; // Space between menu items
+    padding-right: 32pt;
+}
+
+.menu_entry {
+    color: white; // Ensure text color is white
+    text-decoration: none; // Remove underline from links
+    font-size: 26pt; // Increase font size if needed
+    transition: color 0.3s; // Smooth hover transition
+
+    &:hover {
+        color: gray; // Hover effect
+    }
+}

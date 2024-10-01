@@ -1,0 +1,71 @@
+@use "stylance/_index.scss";
+@use "stylance/mixins.scss" as m;
+
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+    color: white;
+    font-family: "Open Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    font-variation-settings: "wdth" 100;
+}
+
+a {
+    scroll-behavior: smooth;
+
+    &:link {
+        color: white;
+        text-decoration: none;
+    }
+
+    &:visited {
+        color: lightgray;
+    }
+
+    &:hover {
+        color: lightgray;
+        text-decoration: underline;
+    }
+
+    &:active {
+        color: gray;
+        text-decoration: underline;
+    }
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    width: 1024pt;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.component {
+    margin: 16pt;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.h2 {   
+    @include m.gothic;
+    color: white;
+    font-size: 48pt;
+    letter-spacing: 0.1em;
+
+}
