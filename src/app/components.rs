@@ -10,3 +10,5 @@ pub use intro::Intro;
 
 pub mod footer;
 pub use footer::Footer;
+
+pub mod auth;

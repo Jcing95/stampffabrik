@@ -3,11 +3,14 @@ use leptos_meta::*;
 use leptos_router;
 
 use crate::app::components::{Header, Footer};
-use pages::{HomePage, AccountPage};
-
+use page::{HomePage, AccountPage};
 
 pub mod components;
-pub mod pages;
+pub mod page;
+pub mod server;
+pub mod db;
+pub mod errors;
+pub mod model;
 
 #[leptos::component]
 pub fn App() -> impl leptos::IntoView {
