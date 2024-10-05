@@ -28,16 +28,16 @@ impl User {
 }
 
 #[derive(Debug, Validate, Deserialize, Serialize, PartialEq, Eq, Clone)]
-pub struct AddUserRequest {
+pub struct RegisterRequest {
     #[validate(email)]
     pub email: String,
     #[validate(length(min = 8), )]
     pub password: String,
 }
 
-impl AddUserRequest {
-    pub fn new(email: String, password: String) -> AddUserRequest {
-        AddUserRequest {
+impl RegisterRequest {
+    pub fn new(email: String, password: String) -> RegisterRequest {
+        RegisterRequest {
             email,
             password,
         }
@@ -53,8 +53,8 @@ pub struct LoginRequest {
 }
 
 impl LoginRequest {
-    pub fn new(email: String, password: String) -> AddUserRequest {
-        AddUserRequest {
+    pub fn new(email: String, password: String) -> RegisterRequest {
+        RegisterRequest {
             email,
             password,
         }
@@ -63,7 +63,6 @@ impl LoginRequest {
 
 #[derive(Debug, Validate, Deserialize, Serialize, PartialEq, Eq, Clone)]
 pub struct DeleteUserRequest {
-    #[validate(length(min = 1, message = "id is required"))]
     pub uuid: String,
 }
 

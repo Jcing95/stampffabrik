@@ -16,3 +16,5 @@ playwright/.cache/
 .sass-cache/
 
 .env
+
+style/stylance/

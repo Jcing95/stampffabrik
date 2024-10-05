@@ -1,43 +1,52 @@
 use leptos::*;
 use crate::app::{
     errors::{ErrorMessage, ResponseErrorTrait},
-    model::{User, user::AddUserRequest, user::LoginRequest, user::DeleteUserRequest},
+    model::{User, user::RegisterRequest, user::LoginRequest, user::DeleteUserRequest},
 };
+use serde::{Serialize, Deserialize};
 
 
-#[server(GetUsers, "/api")]
-pub async fn get_users() -> Result<Vec<User>, ServerFnError> {
-    let users = retrieve_all_users().await;
-    Ok(users)
+#[derive(Serialize, Deserialize)]
+pub struct JWTClaims {
+    pub sub: String, // Subject (user ID)
+    pub exp: usize,  // Expiration time in seconds
+    pub iat: usize,
 }
 
 #[server(Register, "/api")]
-pub async fn add_user(add_user_request: AddUserRequest) -> Result<User, ServerFnError> {
+pub async fn register(add_user_request: RegisterRequest) -> Result<User, ServerFnError> {
     let new_user = add_new_user(
         add_user_request.email,
         add_user_request.password,
-    )
-    .await;
+    ).await;
 
     match new_user {
-        Some(created_user) => Ok(created_user),
-        None => Err(ServerFnError::Args(String::from(
+        Ok(created_user) => Ok(created_user),
+        Err(_) => Err(ServerFnError::Args(String::from(
             "Error in creating user!",
         ))),
     }
 }
 
 #[server(Login, "/api")]
-pub async fn login(login_request: LoginRequest) -> Result<bool, ServerFnError> {
+pub async fn login(login_request: LoginRequest) -> Result<String, ServerFnError> {
     let user = get_user_by_mail(login_request.email).await;
     let user = match user {
         Some(u) => u,
         None => {return Err(ServerFnError::Args(String::from("User not found")))}
     };
-    let verification = verify_password(login_request.password, user.password_hash);
-    match verification {
-        Ok(result) => Ok(result),
-        Err(e) => Err(ServerFnError::Args(String::from("Error logging in!"))) 
+    let verification = verify_password(login_request.password, user.password_hash).await;
+    let verification = match verification {
+        Ok(result) => result,
+        Err(_) => {return Err(ServerFnError::Args(String::from("Error logging in!")))} 
+    };
+    if verification {
+        match generate_jwt(Uuid::parse_str(&user.uuid).unwrap()).await {
+            Ok(token) => Ok(token),
+            Err(_) =>  Err(ServerFnError::Args(String::from("Error logging in!"))),
+        }
+    } else {
+        Err(ServerFnError::Args(String::from("Error logging in!")))
     }
 }
 
@@ -67,8 +76,10 @@ cfg_if::cfg_if! {
 
         use crate::app::db::database;
         use crate::app::errors::{ UserError };
-        use chrono::{DateTime, Local};
+        use chrono::Local;
         use uuid::Uuid;
+        use jsonwebtoken::{encode, decode, Header, Validation, EncodingKey, DecodingKey};
+        use std::env;
 
         use argon2::{
             password_hash::{
@@ -78,19 +89,11 @@ cfg_if::cfg_if! {
             Argon2
         };
 
-        pub async fn retrieve_all_users() -> Vec<User> {
-            let get_all_users_result = database::get_all_users().await;
-            match get_all_users_result {
-                Some(found_users) => found_users,
-                None => Vec::new()
-            }
-        }
-
-        pub async fn get_user_by_mail(email: String) -> Option<User> {
+        async fn get_user_by_mail(email: String) -> Option<User> {
             database::get_user_by_mail(email).await
         }
 
-        pub fn generate_password_hash(password: String) -> Result<String, argon2::password_hash::Error> {
+        async fn generate_password_hash(password: String) -> Result<String, argon2::password_hash::Error> {
             let salt = SaltString::generate(&mut OsRng);
 
             // Argon2 with default params (Argon2id v19)
@@ -109,33 +112,54 @@ cfg_if::cfg_if! {
             return Ok(password_hash);
         }
 
-        pub fn verify_password(password: String, password_hash: String) -> Result<bool, argon2::password_hash::Error> {
+        async fn verify_password(password: String, password_hash: String) -> Result<bool, argon2::password_hash::Error> {
             let parsed_hash = PasswordHash::new(&password_hash)?;
             Ok(Argon2::default().verify_password(password.as_bytes(), &parsed_hash).is_ok())
         }
 
-        pub async fn add_new_user<T>(email: T, password: T)
-            -> Option<User> where T: Into<String> {
+        async fn generate_jwt(user_id: Uuid) -> Result<String, jsonwebtoken::errors::Error> {
+            let claims = JWTClaims {
+                sub: user_id.to_string(),
+                exp: (chrono::Utc::now() + chrono::Duration::hours(1)).timestamp() as usize,
+                iat: chrono::Utc::now().timestamp() as usize,
+            };
+            let secret = env::var("JWT_KEY").unwrap();
+            encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes()))
+        }
 
-            let mut buffer = Uuid::encode_buffer();
-            let uuid = Uuid::new_v4().simple().encode_lower(&mut buffer);
+        async fn validate_jwt(token: &str) -> Result<JWTClaims, jsonwebtoken::errors::Error> {
+            let secret = env::var("JWT_KEY").unwrap();
+            let decoded = decode::<JWTClaims>(token, &DecodingKey::from_secret(secret.as_bytes()), &Validation::default())?;
+            Ok(decoded.claims)
+        }
+
+        async fn add_new_user<T>(email: T, password: T)
+            -> Result<User, UserError> where T: Into<String> {
+
+            let uuid = Uuid::new_v4();
             
-            let password_hash = generate_password_hash(password.into()).unwrap();
+            let password_hash = match generate_password_hash(password.into()).await {
+                Ok(hash) => hash,
+                Err(_) => { return Err(UserError::UserCreationFailure); },
+            };
             // getting the current timestamp
             let current_now = Local::now();
             let current_formatted = current_now.to_string();
 
             let new_user = User::new(
-                String::from(uuid),
+                uuid.into(),
                 email.into(),
                 password_hash,
                 current_formatted
             );
 
-            database::add_user(new_user).await
+            match database::add_user(new_user).await {
+                Some(user) => Ok(user),
+                None => Err(UserError::UserCreationFailure),
+            }
         }
 
-        pub async fn delete_user_entry<T>(uuid: T) ->
+        async fn delete_user_entry<T>(uuid: T) ->
             Result<Option<User>,UserError>
             where T: Into<String> {
 

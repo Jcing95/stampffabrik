@@ -1,4 +1,4 @@
-use crate::app::components::{};
+use crate::app::components::auth::{RegisterForm};
 use leptos;
 
 
@@ -7,7 +7,6 @@ use leptos;
 pub fn AccountPage() -> impl leptos::IntoView {
     leptos::view! {
         <div>
-            Account
         </div>
     }
 }

@@ -1,0 +1,53 @@
+.container {
+    position: absolute;
+    margin: auto;
+    padding: 2em;
+    border-radius: 8pt;
+    background-color: rgba(0,0,0,0.75);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.input {
+    color: white;
+    width: 200pt;
+    height: 32pt;
+    margin-top: 8pt;
+    margin-bottom: 8pt;
+    padding-left: 1em;
+    border: solid 1px white;
+    font-family: "Open Sans", sans-serif;
+    font-optical-sizing: auto;
+}
+
+.button {
+    margin-top: 16pt;
+    border: solid 1px white;
+    color: white;
+    width: 200pt;
+    height: 32pt;
+    font-family: "Open Sans", sans-serif;
+    font-optical-sizing: auto;
+}
+
+.back {
+    display: flex;
+    z-index: 50;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    backdrop-filter: blur(1rem);
+    background-color: transparent;
+    justify-content: center;
+    align-items: center;
+}
+
+.error_label {
+    font-weight: bold;
+    color: rgb(223, 25, 25);
+    background-color: transparent;
+}

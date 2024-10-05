@@ -17,12 +17,12 @@ pub enum UserError {
 pub type ErrorMessage = String;
 
 pub trait ResponseErrorTrait {
-    fn create(User_error: UserError) -> ErrorMessage;
+    fn create(user_error: UserError) -> ErrorMessage;
 }
 
 impl ResponseErrorTrait for ErrorMessage {
-    fn create(User_error: UserError) -> ErrorMessage {
-        match User_error {
+    fn create(user_error: UserError) -> ErrorMessage {
+        match user_error {
             UserError::UserNotFound => ErrorMessage::from("User not found"),
             UserError::UserUpdateFailure => ErrorMessage::from("failed to update user"),
             UserError::UserCreationFailure => ErrorMessage::from("failed to create user"),

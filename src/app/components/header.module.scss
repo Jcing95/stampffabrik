@@ -13,6 +13,7 @@
     width: auto; // Full width of the viewport
     height: 64pt;
     align-items: center;  // This centers the content vertically
+    z-index: 100;
 }
 
 * {
