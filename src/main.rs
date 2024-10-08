@@ -8,12 +8,15 @@ async fn main() -> std::io::Result<()> {
     use leptos::*;
     use leptos_actix::{generate_route_list, LeptosRoutes};
     use stampffabrik::app::*;
+    use dotenvy::dotenv;
     
     let conf = get_configuration(None).await.unwrap();
     let addr = conf.leptos_options.site_addr;
     // Generate the list of routes in your Leptos App
     let routes = generate_route_list(App);
     println!("listening on http://{}", &addr);
+
+    dotenv().ok();
 
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;

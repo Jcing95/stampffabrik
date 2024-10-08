@@ -9,6 +9,8 @@ pub struct User {
     pub email: String,
     pub password_hash: String,
     pub joined_date: String,
+    pub name: String,
+    pub last_name: String,
 }
 
 impl User {
@@ -23,6 +25,8 @@ impl User {
             email,
             password_hash,
             joined_date,
+            name: String::new(),
+            last_name: String::new(),
         }
     }
 }
@@ -53,8 +57,8 @@ pub struct LoginRequest {
 }
 
 impl LoginRequest {
-    pub fn new(email: String, password: String) -> RegisterRequest {
-        RegisterRequest {
+    pub fn new(email: String, password: String) -> LoginRequest {
+        LoginRequest {
             email,
             password,
         }

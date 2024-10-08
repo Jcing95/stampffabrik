@@ -3,7 +3,7 @@
     margin: auto;
     padding: 2em;
     border-radius: 8pt;
-    background-color: rgba(0,0,0,0.75);
+    background-color: rgba(0, 0, 0, 0.75);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -18,8 +18,11 @@
     margin-bottom: 8pt;
     padding-left: 1em;
     border: solid 1px white;
-    font-family: "Open Sans", sans-serif;
-    font-optical-sizing: auto;
+
+    &:placeholder {
+        font-family: "Open Sans", sans-serif;
+        font-optical-sizing: auto;
+    }
 }
 
 .button {
@@ -30,6 +33,12 @@
     height: 32pt;
     font-family: "Open Sans", sans-serif;
     font-optical-sizing: auto;
+    cursor: pointer;
+    transition: background-color 0.3s; // Smooth hover transition
+
+    &:hover {
+        background-color: #222222;
+    }
 }
 
 .back {
@@ -44,10 +53,30 @@
     background-color: transparent;
     justify-content: center;
     align-items: center;
+    animation: fadein .2s normal forwards ease-in-out;
 }
 
 .error_label {
     font-weight: bold;
     color: rgb(223, 25, 25);
     background-color: transparent;
+}
+
+.link {
+    margin-top: 32pt;
+    cursor: pointer;
+    transition: color 0.3s; // Smooth hover transition
+    background: transparent;
+    &:hover {
+        color: gray; // Hover effect
+    }
+}
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }

@@ -1,12 +1,14 @@
-use leptos::*;
 use crate::app::{
     errors::{ErrorMessage, ResponseErrorTrait},
-    model::{User, user::RegisterRequest, user::LoginRequest, user::DeleteUserRequest},
+    model::{user::DeleteUserRequest, user::LoginRequest, user::RegisterRequest, User},
 };
-use serde::{Serialize, Deserialize};
+use leptos::*;
+use serde::{Deserialize, Serialize};
+use leptos::logging::log;
 
 
-#[derive(Serialize, Deserialize)]
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct JWTClaims {
     pub sub: String, // Subject (user ID)
     pub exp: usize,  // Expiration time in seconds
@@ -15,35 +17,62 @@ pub struct JWTClaims {
 
 #[server(Register, "/api")]
 pub async fn register(add_user_request: RegisterRequest) -> Result<User, ServerFnError> {
-    let new_user = add_new_user(
-        add_user_request.email,
-        add_user_request.password,
-    ).await;
+    let new_user = add_new_user(add_user_request.email, add_user_request.password).await;
 
     match new_user {
         Ok(created_user) => Ok(created_user),
-        Err(_) => Err(ServerFnError::Args(String::from(
-            "Error in creating user!",
-        ))),
+        Err(_) => Err(ServerFnError::Args(String::from("Error in creating user!"))),
     }
 }
 
+
+
+#[server]
+pub async fn actix_extract() -> Result<String, ServerFnError> {
+    use actix_web::HttpRequest;
+    let req = use_context::<HttpRequest>();
+    let cookie = req.unwrap().cookie("auth_token").unwrap();
+    let cookie_name = cookie.name();
+    let cookie_value = cookie.value();
+    Ok("successfully read cookie!")
+}
+
 #[server(Login, "/api")]
-pub async fn login(login_request: LoginRequest) -> Result<String, ServerFnError> {
+pub async fn login(
+    login_request: LoginRequest,
+) -> Result<String, ServerFnError> {
+
+    use actix_web::{cookie::{time::Duration, Cookie, SameSite},  http::{header::{self, HeaderValue}, StatusCode}, HttpRequest};
+    use leptos_actix::{ResponseOptions};
+
     let user = get_user_by_mail(login_request.email).await;
     let user = match user {
         Some(u) => u,
-        None => {return Err(ServerFnError::Args(String::from("User not found")))}
+        None => return Err(ServerFnError::Args(String::from("User not found"))),
     };
     let verification = verify_password(login_request.password, user.password_hash).await;
     let verification = match verification {
         Ok(result) => result,
-        Err(_) => {return Err(ServerFnError::Args(String::from("Error logging in!")))} 
+        Err(_) => return Err(ServerFnError::Args(String::from("Error logging in!"))),
     };
     if verification {
         match generate_jwt(Uuid::parse_str(&user.uuid).unwrap()).await {
-            Ok(token) => Ok(token),
-            Err(_) =>  Err(ServerFnError::Args(String::from("Error logging in!"))),
+            Ok(token) => {
+                let cookie = Cookie::build("auth_token", &token)
+                    .http_only(true)
+                    .secure(true)
+                    .same_site(SameSite::Lax)
+                    .path("/")
+                    .max_age(Duration::days(30))
+                    .finish();
+                let response = expect_context::<ResponseOptions>();
+                response.set_status(StatusCode::OK);
+                if let Ok(cookie) = HeaderValue::from_str(&cookie.to_string()) {
+                    response.insert_header(header::SET_COOKIE, cookie);
+                }
+                Ok(token)
+            }
+            Err(_) => Err(ServerFnError::Args(String::from("Error logging in!"))),
         }
     } else {
         Err(ServerFnError::Args(String::from("Error logging in!")))
@@ -51,9 +80,7 @@ pub async fn login(login_request: LoginRequest) -> Result<String, ServerFnError>
 }
 
 #[server(DeleteUser, "/api")]
-pub async fn delete_user(
-    delete_user_request: DeleteUserRequest,
-) -> Result<User, ServerFnError> {
+pub async fn delete_user(delete_user_request: DeleteUserRequest) -> Result<User, ServerFnError> {
     let deleted_results = delete_user_entry(delete_user_request.uuid).await;
     match deleted_results {
         Ok(deleted) => {
@@ -69,9 +96,7 @@ pub async fn delete_user(
     }
 }
 
-
 cfg_if::cfg_if! {
-
     if #[cfg(feature = "ssr")] {
 
         use crate::app::db::database;
@@ -124,7 +149,9 @@ cfg_if::cfg_if! {
                 iat: chrono::Utc::now().timestamp() as usize,
             };
             let secret = env::var("JWT_KEY").unwrap();
-            encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes()))
+            let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes()));
+            logging::log!("UUID: {:?}\nToken: {:?}\n decoded: {:?}", user_id, token, validate_jwt(token.as_ref().unwrap().as_str()).await);
+            token
         }
 
         async fn validate_jwt(token: &str) -> Result<JWTClaims, jsonwebtoken::errors::Error> {
@@ -137,7 +164,7 @@ cfg_if::cfg_if! {
             -> Result<User, UserError> where T: Into<String> {
 
             let uuid = Uuid::new_v4();
-            
+
             let password_hash = match generate_password_hash(password.into()).await {
                 Ok(hash) => hash,
                 Err(_) => { return Err(UserError::UserCreationFailure); },

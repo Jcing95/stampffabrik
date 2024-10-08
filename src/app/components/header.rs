@@ -1,17 +1,16 @@
 use leptos;
-use super::auth::{RegisterForm};
+use super::auth::AuthForm;
 
 stylance::import_style!(style, "header.module.scss");
 
 #[leptos::component]
 pub fn Header() -> impl leptos::IntoView {
-
-    let (show_register_modal, set_show_register_modal) = leptos::create_signal(false);
-
-    let (is_logged_in, set_logged_in) = leptos::create_signal(false);
+   
+    let (user_token, set_user_token) = leptos::create_signal(String::new());
+    let (show_modal, set_show_modal) = leptos::create_signal(false);
 
     let account_clicked = move |_| {
-        set_show_register_modal(!show_register_modal());
+        set_show_modal(!show_modal());
     };
 
     leptos::view! {
@@ -22,12 +21,10 @@ pub fn Header() -> impl leptos::IntoView {
             <div class=style::nav_menu>
                 <a class=style::menu_entry href="/"><i class="bi bi-house-door-fill"></i> Home</a>
                 <a class=style::menu_entry on:click=account_clicked><i class="bi bi-person-circle"></i>
-                 {move || if !is_logged_in() {" LOGIN"} else {" USERNAME"}}
+                 {move || if user_token().is_empty() {" LOGIN"} else {" USERNAME"}}
                 </a>
             </div>
         </div>
-        <leptos::Show when = move || { show_register_modal() }>
-            <RegisterForm set_show_register_modal/>
-        </leptos::Show>
+        <AuthForm show_modal set_show_modal set_user_token/>
     }
 }

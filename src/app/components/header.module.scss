@@ -40,7 +40,7 @@
     text-decoration: none; // Remove underline from links
     font-size: 26pt; // Increase font size if needed
     transition: color 0.3s; // Smooth hover transition
-
+    cursor: pointer;
     &:hover {
         color: gray; // Hover effect
     }
