@@ -18,7 +18,6 @@ stylance::import_style!(style, "auth.module.scss");
 pub fn AuthForm(
     show_modal: leptos::ReadSignal<bool>,
     set_show_modal: leptos::WriteSignal<bool>,
-    set_user_token: leptos::WriteSignal<String>,
 ) -> impl leptos::IntoView {
 
     let (current_modal, set_current_modal) = leptos::create_signal(CurrentModal::Login);
@@ -34,7 +33,7 @@ pub fn AuthForm(
                     <RegisterForm set_current_modal set_show_modal/>
                 </leptos::Show>
                 <leptos::Show when = move || { current_modal() == CurrentModal::Login }>
-                    <LoginForm set_current_modal set_show_modal set_user_token/>
+                    <LoginForm set_current_modal set_show_modal/>
                 </leptos::Show>
             </div>
         </leptos::Show>
@@ -45,7 +44,6 @@ pub fn AuthForm(
 pub fn LoginForm(
     set_current_modal: leptos::WriteSignal<CurrentModal>,
     set_show_modal: leptos::WriteSignal<bool>,
-    set_user_token: leptos::WriteSignal<String>,
 ) -> impl leptos::IntoView {
     let (email, set_email) = leptos::create_signal(String::new());
     let (password, set_password) = leptos::create_signal(String::new());
@@ -71,8 +69,6 @@ pub fn LoginForm(
                     match login_result {
                         Ok(user) => {
                             log! {"success"};
-                            set_user_token(user);
-                            log! {"Response {:}", actix_extract().await.unwrap()};
                             set_show_modal(false);
                         }
                         Err(e) => {

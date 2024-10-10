@@ -27,20 +27,25 @@ pub async fn register(add_user_request: RegisterRequest) -> Result<User, ServerF
 
 
 
-#[server]
-pub async fn actix_extract() -> Result<String, ServerFnError> {
+
+
+#[server(Authenticate, "/api")]
+pub async fn authenticate(
+    authenticate_request: AuthenticateRequest,
+) -> Result<User, ServerFnError> {
     use actix_web::HttpRequest;
     let req = use_context::<HttpRequest>();
     let cookie = req.unwrap().cookie("auth_token").unwrap();
     let cookie_name = cookie.name();
     let cookie_value = cookie.value();
-    Ok("successfully read cookie!")
+
 }
+
 
 #[server(Login, "/api")]
 pub async fn login(
     login_request: LoginRequest,
-) -> Result<String, ServerFnError> {
+) -> Result<User, ServerFnError> {
 
     use actix_web::{cookie::{time::Duration, Cookie, SameSite},  http::{header::{self, HeaderValue}, StatusCode}, HttpRequest};
     use leptos_actix::{ResponseOptions};
@@ -70,7 +75,7 @@ pub async fn login(
                 if let Ok(cookie) = HeaderValue::from_str(&cookie.to_string()) {
                     response.insert_header(header::SET_COOKIE, cookie);
                 }
-                Ok(token)
+                Ok(user)
             }
             Err(_) => Err(ServerFnError::Args(String::from("Error logging in!"))),
         }

@@ -1,9 +1,11 @@
-use leptos;
+use leptos::{self, ServerFnError};
 use leptos_meta::*;
 use leptos_router;
 
 use crate::app::components::{Header, Footer};
 use page::{HomePage, AccountPage};
+use model::User;
+use leptos::logging::log;
 
 pub mod components;
 pub mod page;
@@ -17,6 +19,8 @@ pub fn App() -> impl leptos::IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
     
+    let user = leptos::spawn_local(authenticate());
+
     leptos::view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
@@ -41,6 +45,25 @@ pub fn App() -> impl leptos::IntoView {
     }
 }
 
+async fn authenticate() {
+    log!{"spawned login process..."}
+    let login_result = login(login_request).await;
+    log!{"finished login process..."}
+
+    match login_result {
+        Ok(user) => {
+            log! {"success"};
+            set_user_token(user);
+            log! {"Response {:}", actix_extract().await.unwrap()};
+            set_show_modal(false);
+        }
+        Err(e) => {
+            log!("Error {:?}", e);
+            set_error_message(format! {"Error adding {:?}", e});
+        }
+    }
+
+} 
 
 /// 404 - Not Found
 #[leptos::component]

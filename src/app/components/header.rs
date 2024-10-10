@@ -6,7 +6,6 @@ stylance::import_style!(style, "header.module.scss");
 #[leptos::component]
 pub fn Header() -> impl leptos::IntoView {
    
-    let (user_token, set_user_token) = leptos::create_signal(String::new());
     let (show_modal, set_show_modal) = leptos::create_signal(false);
 
     let account_clicked = move |_| {
@@ -25,6 +24,6 @@ pub fn Header() -> impl leptos::IntoView {
                 </a>
             </div>
         </div>
-        <AuthForm show_modal set_show_modal set_user_token/>
+        <AuthForm show_modal set_show_modal/>
     }
 }
