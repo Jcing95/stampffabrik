@@ -1,0 +1,1 @@
+cargo install trunk cargo-leptos stylance-cli
