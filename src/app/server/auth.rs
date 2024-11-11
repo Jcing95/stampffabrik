@@ -1,6 +1,12 @@
 use crate::app::{
     errors::{ErrorMessage, ResponseErrorTrait},
-    model::{user::DeleteUserRequest, user::LoginRequest, user::RegisterRequest, User},
+    model::{
+        user::DeleteUserRequest,
+        user::LoginRequest,
+        user::RegisterRequest,
+        user::AuthenticateRequest,
+        User
+    },
 };
 use leptos::*;
 use serde::{Deserialize, Serialize};
@@ -31,14 +37,33 @@ pub async fn register(add_user_request: RegisterRequest) -> Result<User, ServerF
 
 #[server(Authenticate, "/api")]
 pub async fn authenticate(
-    authenticate_request: AuthenticateRequest,
+    authenticate_request: Option<AuthenticateRequest>,
 ) -> Result<User, ServerFnError> {
     use actix_web::HttpRequest;
-    let req = use_context::<HttpRequest>();
-    let cookie = req.unwrap().cookie("auth_token").unwrap();
-    let cookie_name = cookie.name();
-    let cookie_value = cookie.value();
-
+    let http_request = use_context::<HttpRequest>();
+    log!("HTTP: {:?}", http_request);
+    let token = match authenticate_request {
+        Some(auth_request) => auth_request.token,
+        None => {
+            let cookie = match http_request {
+                Some(request) => match request.cookie("auth_token") {
+                    Some(c) => c,
+                    None => return Err(ServerFnError::Args(String::from("No cookie provided")))
+                },
+                None => return Err(ServerFnError::Args(String::from("No valid request"))),
+            };
+            cookie.value().to_owned()
+        }
+    };
+    let claims = match validate_jwt(&token).await {
+        Ok(decoded) => decoded,
+        Err(_) => return Err(ServerFnError::Args(String::from("Invalid Token")))
+    };
+    
+    match get_user_by_id(claims.sub).await {
+        Some(user) => Ok(user),
+        None => Err(ServerFnError::Args(String::from("User not found")))
+    }
 }
 
 
@@ -55,7 +80,7 @@ pub async fn login(
         Some(u) => u,
         None => return Err(ServerFnError::Args(String::from("User not found"))),
     };
-    let verification = verify_password(login_request.password, user.password_hash).await;
+    let verification = verify_password(login_request.password.to_owned(), user.password_hash.to_owned()).await;
     let verification = match verification {
         Ok(result) => result,
         Err(_) => return Err(ServerFnError::Args(String::from("Error logging in!"))),
@@ -121,6 +146,10 @@ cfg_if::cfg_if! {
 
         async fn get_user_by_mail(email: String) -> Option<User> {
             database::get_user_by_mail(email).await
+        }
+
+        async fn get_user_by_id(uuid: String) -> Option<User> {
+            database::get_user_by_id(uuid).await
         }
 
         async fn generate_password_hash(password: String) -> Result<String, argon2::password_hash::Error> {

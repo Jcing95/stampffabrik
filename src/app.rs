@@ -46,23 +46,14 @@ pub fn App() -> impl leptos::IntoView {
 }
 
 async fn authenticate() {
-    log!{"spawned login process..."}
-    let login_result = login(login_request).await;
-    log!{"finished login process..."}
-
-    match login_result {
-        Ok(user) => {
-            log! {"success"};
-            set_user_token(user);
-            log! {"Response {:}", actix_extract().await.unwrap()};
-            set_show_modal(false);
+    let user = match server::auth::authenticate(None).await {
+        Ok(u) => u,
+        Err(E) => {
+            log!("Error: {:?}", E);
+            return;
         }
-        Err(e) => {
-            log!("Error {:?}", e);
-            set_error_message(format! {"Error adding {:?}", e});
-        }
-    }
-
+    };
+    log!("automatically logged in User: {:?}", user);
 } 
 
 /// 404 - Not Found

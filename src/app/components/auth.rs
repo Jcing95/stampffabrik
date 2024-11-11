@@ -4,7 +4,7 @@ use leptos::logging::log;
 use validator::Validate;
 
 use crate::app::model::user::{LoginRequest, RegisterRequest};
-use crate::app::server::auth::{login, register, actix_extract};
+use crate::app::server::auth::{login, register};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum CurrentModal {

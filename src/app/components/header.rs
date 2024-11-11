@@ -20,7 +20,7 @@ pub fn Header() -> impl leptos::IntoView {
             <div class=style::nav_menu>
                 <a class=style::menu_entry href="/"><i class="bi bi-house-door-fill"></i> Home</a>
                 <a class=style::menu_entry on:click=account_clicked><i class="bi bi-person-circle"></i>
-                 {move || if user_token().is_empty() {" LOGIN"} else {" USERNAME"}}
+                 LOGIN
                 </a>
             </div>
         </div>

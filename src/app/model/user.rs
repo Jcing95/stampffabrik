@@ -32,6 +32,19 @@ impl User {
 }
 
 #[derive(Debug, Validate, Deserialize, Serialize, PartialEq, Eq, Clone)]
+pub struct AuthenticateRequest {
+    pub token: String,
+}
+
+impl AuthenticateRequest {
+    pub fn new (token: String) -> AuthenticateRequest {
+        AuthenticateRequest {
+            token,
+        }
+    }
+}
+
+#[derive(Debug, Validate, Deserialize, Serialize, PartialEq, Eq, Clone)]
 pub struct RegisterRequest {
     #[validate(email)]
     pub email: String,

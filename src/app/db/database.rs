@@ -55,6 +55,23 @@ cfg_if::cfg_if! {
             }
         }
 
+        pub async fn get_user_by_id(uuid: String) -> Option<User> {
+            open_db_connection().await;
+            let user = DB.query("SELECT * FROM user WHERE uuid = $uuid").bind(("uuid", uuid)).await;
+            let _ = DB.invalidate().await;
+
+            match user {
+                Ok(mut res) => {
+                    let found:Result<Vec<User>,_> = res.take(0);
+                    match found {
+                        Ok(found_user) => Some(found_user[0].clone()),
+                        Err(_) => None,
+                    }
+                },
+                Err(_) => None,
+            }
+        }
+
         pub async fn add_user(new_user: User) -> Option<User> {
             open_db_connection().await;
             let results = DB.create(("user", new_user.uuid.to_string()))
