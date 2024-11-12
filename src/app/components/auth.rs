@@ -67,7 +67,7 @@ pub fn LoginForm(
                     log!{"finished login process..."}
 
                     match login_result {
-                        Ok(user) => {
+                        Ok(_) => {
                             log! {"success"};
                             set_show_modal(false);
                         }
@@ -147,7 +147,7 @@ pub fn RegisterForm(
                     let register_result = register(register_request).await;
 
                     match register_result {
-                        Ok(user) => {
+                        Ok(_) => {
                             log! {"success"};
                             set_show_modal(false);
                             set_current_modal(CurrentModal::Register);

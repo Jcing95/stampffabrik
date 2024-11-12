@@ -12,8 +12,6 @@ use leptos::*;
 use serde::{Deserialize, Serialize};
 use leptos::logging::log;
 
-
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JWTClaims {
     pub sub: String, // Subject (user ID)
@@ -30,10 +28,6 @@ pub async fn register(add_user_request: RegisterRequest) -> Result<User, ServerF
         Err(_) => Err(ServerFnError::Args(String::from("Error in creating user!"))),
     }
 }
-
-
-
-
 
 #[server(Authenticate, "/api")]
 pub async fn authenticate(
@@ -72,8 +66,8 @@ pub async fn login(
     login_request: LoginRequest,
 ) -> Result<User, ServerFnError> {
 
-    use actix_web::{cookie::{time::Duration, Cookie, SameSite},  http::{header::{self, HeaderValue}, StatusCode}, HttpRequest};
-    use leptos_actix::{ResponseOptions};
+    use actix_web::{cookie::{time::Duration, Cookie, SameSite},  http::{header::{self, HeaderValue}, StatusCode}};
+    use leptos_actix::ResponseOptions;
 
     let user = get_user_by_mail(login_request.email).await;
     let user = match user {
@@ -226,6 +220,5 @@ cfg_if::cfg_if! {
 
             database::delete_user(uuid.into()).await
         }
-
     }
 }

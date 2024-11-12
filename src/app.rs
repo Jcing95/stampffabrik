@@ -1,4 +1,4 @@
-use leptos::{self, ServerFnError};
+use leptos::{self, create_signal, provide_context, WriteSignal};
 use leptos_meta::*;
 use leptos_router;
 
@@ -18,8 +18,9 @@ pub mod model;
 pub fn App() -> impl leptos::IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
-    
-    let user = leptos::spawn_local(authenticate());
+    let (user, set_user) = create_signal::<Option<User>>(None);
+    provide_context(user);
+    leptos::spawn_local(authenticate(set_user));
 
     leptos::view! {
         // injects a stylesheet into the document <head>
@@ -45,15 +46,15 @@ pub fn App() -> impl leptos::IntoView {
     }
 }
 
-async fn authenticate() {
+async fn authenticate(set_user: WriteSignal<Option<User>>) {
     let user = match server::auth::authenticate(None).await {
         Ok(u) => u,
-        Err(E) => {
-            log!("Error: {:?}", E);
+        Err(e) => {
+            log!("Error: {:?}", e);
             return;
         }
     };
-    log!("automatically logged in User: {:?}", user);
+    set_user(Some(user));
 } 
 
 /// 404 - Not Found
