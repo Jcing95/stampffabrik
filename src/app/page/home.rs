@@ -1,10 +1,10 @@
+use leptos::*;
 use crate::app::components::{Intro, Events};
-use leptos;
 
 
-#[leptos::component]
-pub fn HomePage() -> impl leptos::IntoView {
-    leptos::view! {
+#[component]
+pub fn HomePage() -> impl IntoView {
+    view! {
         <div class="container">
             <Intro/>
             <Events/>

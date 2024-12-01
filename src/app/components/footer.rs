@@ -1,10 +1,10 @@
-use leptos;
+use leptos::*;
 
 stylance::import_style!(style, "footer.module.scss");
 
-#[leptos::component]
-pub fn Footer() -> impl leptos::IntoView {
-    leptos::view! {
+#[component]
+pub fn Footer() -> impl IntoView {
+    view! {
         <div class=style::footer>
             <span class=style::social>
                 <a class="bi bi-instagram" href="https://www.instagram.com/stampffabrik"></a>

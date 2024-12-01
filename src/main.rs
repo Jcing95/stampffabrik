@@ -1,14 +1,14 @@
+use leptos::*;
+use actix_files::Files;
+use actix_web::*;
+use leptos_actix::{generate_route_list, LeptosRoutes};
+use stampffabrik::app::*;
+use dotenvy::dotenv;
 
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    use actix_files::Files;
-    use actix_web::*;
-    use leptos::*;
-    use leptos_actix::{generate_route_list, LeptosRoutes};
-    use stampffabrik::app::*;
-    use dotenvy::dotenv;
     
     let conf = get_configuration(None).await.unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -41,7 +41,7 @@ async fn main() -> std::io::Result<()> {
 #[cfg(feature = "ssr")]
 #[actix_web::get("favicon.ico")]
 async fn favicon(
-    leptos_options: actix_web::web::Data<leptos::LeptosOptions>,
+    leptos_options: actix_web::web::Data<LeptosOptions>,
 ) -> actix_web::Result<actix_files::NamedFile> {
     let leptos_options = leptos_options.into_inner();
     let site_root = &leptos_options.site_root;
@@ -67,5 +67,5 @@ pub fn main() {
 
     console_error_panic_hook::set_once();
 
-    leptos::mount_to_body(App);
+    mount_to_body(App);
 }

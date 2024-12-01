@@ -1,9 +1,9 @@
-use leptos;
+use leptos::*;
 
 
 #[leptos::component]
-pub fn AccountPage() -> impl leptos::IntoView {
-    leptos::view! {
+pub fn AccountPage() -> impl IntoView {
+    view! {
         <div>
         </div>
     }

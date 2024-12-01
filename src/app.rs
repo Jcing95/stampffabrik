@@ -1,28 +1,23 @@
-use leptos::{self, create_signal, provide_context, WriteSignal};
+use leptos::*;
 use leptos_meta::*;
 use leptos_router;
 
 use crate::app::components::{Header, Footer};
 use page::{HomePage, AccountPage};
-use model::User;
-use leptos::logging::log;
 
 pub mod components;
 pub mod page;
-pub mod server;
-pub mod db;
+pub mod auth;
+pub mod database;
 pub mod errors;
 pub mod model;
 
-#[leptos::component]
-pub fn App() -> impl leptos::IntoView {
+#[component]
+pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
-    let (user, set_user) = create_signal::<Option<User>>(None);
-    provide_context(user);
-    leptos::spawn_local(authenticate(set_user));
 
-    leptos::view! {
+    view! {
         // injects a stylesheet into the document <head>
         // id=leptos means cargo-leptos will hot-reload this stylesheet
         <Stylesheet id="leptos" href="/pkg/stampffabrik.css"/>
@@ -46,20 +41,11 @@ pub fn App() -> impl leptos::IntoView {
     }
 }
 
-async fn authenticate(set_user: WriteSignal<Option<User>>) {
-    let user = match server::auth::authenticate(None).await {
-        Ok(u) => u,
-        Err(e) => {
-            log!("Error: {:?}", e);
-            return;
-        }
-    };
-    set_user(Some(user));
-} 
+
 
 /// 404 - Not Found
-#[leptos::component]
-fn NotFound() -> impl leptos::IntoView {
+#[component]
+fn NotFound() -> impl IntoView {
     // set an HTTP status code 404
     // this is feature gated because it can only be done during
     // initial server-side rendering
@@ -70,11 +56,11 @@ fn NotFound() -> impl leptos::IntoView {
     {
         // this can be done inline because it's synchronous
         // if it were async, we'd use a server function
-        let resp = leptos::expect_context::<leptos_actix::ResponseOptions>();
+        let resp = expect_context::<leptos_actix::ResponseOptions>();
         resp.set_status(actix_web::http::StatusCode::NOT_FOUND);
     }
 
-    leptos::view! {
+    view! {
         <h1>"Not Found"</h1>
     }
 }
