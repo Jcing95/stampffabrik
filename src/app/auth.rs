@@ -4,6 +4,8 @@ use leptos::logging::log;
 use leptos::ev::{self, MouseEvent};
 use validator::Validate;
 use serde::{Deserialize, Serialize};
+use wasm_bindgen::JsCast;
+use leptos::web_sys::HtmlElement;
 
 use crate::app::model::{
     user::LoginRequest,
@@ -36,16 +38,19 @@ pub fn AuthForm(
 
     let (current_modal, set_current_modal) = signal(CurrentModal::Login);
 
-    // let on_back_pressed = move |_| {
-    //     set_show_modal(false);
-    // };
+    let on_back_pressed = move |e: MouseEvent| {
+        let elem: HtmlElement = e.target().unwrap().dyn_into().unwrap();
+        if elem.id() == "back" {
+            set_show_modal(false);
+        }
+    };
 
     let (_user, set_user) = signal::<Option<User>>(None);
     spawn_local(initial_auth(set_user));
 
     view! {
         <Show when = move || { show_modal() }>
-            <div class=style::back>
+            <div class=style::back id="back" on:click=on_back_pressed>
                 <Show when = move || { current_modal() == CurrentModal::Register }>
                     <SignUpForm set_current_modal set_show_modal set_user/>
                 </Show>

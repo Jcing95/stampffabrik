@@ -1,4 +1,4 @@
-use leptos::{logging::log, prelude::*};
+use leptos::prelude::*;
 
 use crate::app::auth::AuthForm;
 
