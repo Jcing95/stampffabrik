@@ -36,16 +36,16 @@ pub fn AuthForm(
 
     let (current_modal, set_current_modal) = signal(CurrentModal::Login);
 
-    let on_back_pressed = move |_| {
-        set_show_modal(false);
-    };
+    // let on_back_pressed = move |_| {
+    //     set_show_modal(false);
+    // };
 
     let (_user, set_user) = signal::<Option<User>>(None);
     spawn_local(initial_auth(set_user));
 
     view! {
         <Show when = move || { show_modal() }>
-            <div class=style::back on:click=on_back_pressed>
+            <div class=style::back>
                 <Show when = move || { current_modal() == CurrentModal::Register }>
                     <SignUpForm set_current_modal set_show_modal set_user/>
                 </Show>
@@ -122,7 +122,7 @@ pub fn SignInForm(
     };
     
     view! {
-        <div class=style::container on:click=|e: ev::MouseEvent| e.stop_propagation()>
+        <div class=style::container>
             <input type="email" placeholder="E-Mail"
                 value=email
                 on:input=move |e| {
@@ -249,7 +249,7 @@ pub fn SignUpForm(
     log! {"creating component now!"};
 
     view! {
-        <div class=style::container on:click=|e: ev::MouseEvent| e.stop_propagation()>
+        <div class=style::container>
             <input type="email" placeholder="E-Mail"
                 value=email
                 on:input=move |e| {
