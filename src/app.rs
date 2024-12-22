@@ -1,6 +1,9 @@
-use leptos::*;
+use leptos::prelude::*;
 use leptos_meta::*;
-use leptos_router;
+use leptos_router::{
+    components::{Router, Route, Routes},
+    StaticSegment, WildcardSegment,
+};
 
 use crate::app::components::{Header, Footer};
 use page::{HomePage, AccountPage};
@@ -27,17 +30,17 @@ pub fn App() -> impl IntoView {
         <Title text="STAMPFFABRIK"/>
 
         // content for this welcome page
-        <leptos_router::Router>
-            <Header/>
-            <div>
-                <leptos_router::Routes>
-                    <leptos_router::Route path="/" view=HomePage/>
-                    <leptos_router::Route path="/account" view=AccountPage/>
-                    <leptos_router::Route path="/*any" view=NotFound/>
-                </leptos_router::Routes>
-            </div>
-            <Footer/>
-        </leptos_router::Router>
+        <Router>
+            <main>
+                <Header/>
+                    <Routes fallback=move || "not found.">
+                        <Route path=StaticSegment("") view=HomePage/>
+                        <Route path=StaticSegment("account") view=AccountPage/>
+                        <Route path=WildcardSegment("any") view=NotFound/>
+                    </Routes>
+                <Footer/>
+            </main>
+        </Router>
     }
 }
 

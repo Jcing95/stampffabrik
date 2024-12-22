@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 stylance::import_style!(my_style, "intro.module.scss");
 

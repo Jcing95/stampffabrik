@@ -1,7 +1,7 @@
 
-use leptos::*;
+use leptos::{prelude::*, task::spawn_local};
 use leptos::logging::log;
-use leptos::ev::MouseEvent;
+use leptos::ev::{self, MouseEvent};
 use validator::Validate;
 use serde::{Deserialize, Serialize};
 
@@ -23,6 +23,7 @@ pub struct JWTClaims {
 pub enum CurrentModal {
     Login,
     Register,
+    None,
 }
 
 stylance::import_style!(style, "auth.module.scss");
@@ -33,13 +34,13 @@ pub fn AuthForm(
     set_show_modal: WriteSignal<bool>,
 ) -> impl IntoView {
 
-    let (current_modal, set_current_modal) = create_signal(CurrentModal::Login);
+    let (current_modal, set_current_modal) = signal(CurrentModal::Login);
 
     let on_back_pressed = move |_| {
         set_show_modal(false);
     };
 
-    let (_user, set_user) = create_signal::<Option<User>>(None);
+    let (_user, set_user) = signal::<Option<User>>(None);
     spawn_local(initial_auth(set_user));
 
     view! {
@@ -73,11 +74,11 @@ pub fn SignInForm(
     set_show_modal: WriteSignal<bool>,
     set_user: WriteSignal<Option<User>>
 ) -> impl IntoView {
-    let (email, set_email) = create_signal(String::new());
-    let (password, set_password) = create_signal(String::new());
+    let (email, set_email) = signal(String::new());
+    let (password, set_password) = signal(String::new());
 
-    let (error_message, set_error_message) = create_signal(String::new());
-    let (if_error, set_if_error) = create_signal(false);
+    let (error_message, set_error_message) = signal(String::new());
+    let (if_error, set_if_error) = signal(false);
 
     let on_register_pressed = move |_| {
         set_current_modal(CurrentModal::Register);
@@ -142,8 +143,8 @@ pub fn SignInForm(
                     {error_message()}
                 </Show>
             </span>
-            <button on:click=on_login class=style::button>Login</button>
-            <a class=style::link on:click=on_register_pressed>Neues Konto erstellen</a>
+            <button on:click=on_login class=style::button>"Login"</button>
+            <a class=style::link on:click=on_register_pressed>"Neues Konto erstellen"</a>
         </div>
     }
 }
@@ -199,11 +200,11 @@ pub fn SignUpForm(
     set_user: WriteSignal<Option<User>>,
 ) -> impl IntoView {
 
-    let (email, set_email) = create_signal(String::new());
-    let (password, set_password) = create_signal(String::new());
+    let (email, set_email) = signal(String::new());
+    let (password, set_password) = signal(String::new());
 
-    let (error_message, set_error_message) = create_signal(String::new());
-    let (if_error, set_if_error) = create_signal(false);
+    let (error_message, set_error_message) = signal(String::new());
+    let (if_error, set_if_error) = signal(false);
 
     let on_login_pressed = move |_| {
         set_current_modal(CurrentModal::Login);
@@ -269,8 +270,8 @@ pub fn SignUpForm(
                     {error_message()}
                 </Show>
             </span>
-            <button on:click=on_register class=style::button>Registrieren</button>
-            <a class=style::link on:click=on_login_pressed>Ich habe bereits ein Konto</a>
+            <button on:click=on_register class=style::button>"Registrieren"</button>
+            <a class=style::link on:click=on_login_pressed>"Ich habe bereits ein Konto"</a>
         </div>
     }
 }
@@ -389,7 +390,7 @@ cfg_if::cfg_if! {
             };
             let secret = env::var("JWT_KEY").unwrap();
             let token = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes()));
-            logging::log!("UUID: {:?}\nToken: {:?}\n decoded: {:?}", user_id, token, validate_jwt(token.as_ref().unwrap().as_str()).await);
+            log!("UUID: {:?}\nToken: {:?}\n decoded: {:?}", user_id, token, validate_jwt(token.as_ref().unwrap().as_str()).await);
             token
         }
 

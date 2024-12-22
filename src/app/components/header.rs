@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::{logging::log, prelude::*};
 
 use crate::app::auth::AuthForm;
 
@@ -6,7 +6,7 @@ stylance::import_style!(style, "header.module.scss");
 
 #[component]
 pub fn Header() -> impl IntoView {
-    let (show_modal, set_show_modal) = create_signal(false);
+    let (show_modal, set_show_modal) = signal(false);
 
     let account_clicked = move |_| {
         set_show_modal(!show_modal());
