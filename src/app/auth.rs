@@ -45,7 +45,10 @@ pub fn AuthForm(
         }
     };
 
-    let (_user, set_user) = signal::<Option<User>>(None);
+    let user: (ReadSignal<Option<User>>, WriteSignal<Option<User>>) = signal::<Option<User>>(None);
+    let set_user = user.1;
+    provide_context(user);
+
     spawn_local(initial_auth(set_user));
 
     view! {
@@ -65,6 +68,7 @@ pub fn AuthForm(
 async fn initial_auth(set_user: WriteSignal<Option<User>>) {
     match authenticate(None).await {
         Ok(user) => {
+            log!("set user: {:?}", user);
             set_user(Some(user));
         },
         Err(e) => {
@@ -104,6 +108,7 @@ pub fn SignInForm(
                         Ok(user) => {
                             log! {"success"};
                             set_show_modal(false);
+                            log!("set user: {:?}", user);
                             set_user(Some(user));
                         }
                         Err(e) => {
@@ -228,7 +233,7 @@ pub fn SignUpForm(
                         Ok(user) => {
                             log! {"success"};
                             set_show_modal(false);
-                            set_current_modal(CurrentModal::Register);
+                            log!("set user: {:?}", user);
                             set_user(Some(user));
                         }
                         Err(e) => {
@@ -342,7 +347,7 @@ pub async fn authenticate(
 cfg_if::cfg_if! {
     if #[cfg(feature = "ssr")] {
         use crate::app::database;
-        use crate::app::errors::{ UserError };
+        use crate::app::errors::{ ResponseError };
         use chrono::Local;
         use uuid::Uuid;
         use jsonwebtoken::{encode, decode, Header, Validation, EncodingKey, DecodingKey};
@@ -406,13 +411,13 @@ cfg_if::cfg_if! {
         }
 
         async fn add_new_user<T>(email: T, password: T)
-            -> Result<(User, String), UserError> where T: Into<String> {
+            -> Result<(User, String), ResponseError> where T: Into<String> {
 
             let uuid = Uuid::new_v4();
 
             let password_hash = match generate_password_hash(password.into()).await {
                 Ok(hash) => hash,
-                Err(_) => { return Err(UserError::UserCreationFailure); },
+                Err(_) => { return Err(ResponseError::UserCreationFailure); },
             };
             // getting the current timestamp
             let current_now = Local::now();
@@ -427,12 +432,12 @@ cfg_if::cfg_if! {
 
             let token = match database::add_user(new_user.clone()).await {
                 Some(_user) => generate_jwt(uuid).await,
-                None => return Err(UserError::UserCreationFailure),
+                None => return Err(ResponseError::UserCreationFailure),
             };
 
             match token {
                 Ok(token) => Ok((new_user,token)),
-                Err(_e) => Err(UserError::UserCreationFailure),
+                Err(_e) => Err(ResponseError::UserCreationFailure),
             }
         }
     }

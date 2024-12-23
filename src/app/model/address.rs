@@ -12,7 +12,14 @@ pub struct Address {
 }
 
 impl Address {
-    pub fn new(country: String, line1: String, line2: Option<String>, city: String, state: String, zipcode: String) -> Address {
+    pub fn new(
+        country: String,
+        line1: String,
+        line2: Option<String>,
+        city: String,
+        state: String,
+        zipcode: String,
+    ) -> Address {
         Address {
             country,
             line1,

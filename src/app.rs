@@ -1,4 +1,4 @@
-use leptos::prelude::*;
+use leptos::{logging::log, prelude::*};
 use leptos_meta::*;
 use leptos_router::{
     components::{Router, Route, Routes},
@@ -6,6 +6,7 @@ use leptos_router::{
 };
 
 use auth::AuthForm;
+use model::User;
 use page::{HomePage, AccountPage};
 
 pub mod page;
@@ -48,9 +49,26 @@ pub fn App() -> impl IntoView {
 #[component]
 pub fn Header() -> impl IntoView {
     let (show_modal, set_show_modal) = signal(false);
-
-    let account_clicked = move |_| {
-        set_show_modal(!show_modal());
+    
+    let get_user= || -> Option<ReadSignal<Option<User>>> {
+        match use_context::<(ReadSignal<Option<User>>, WriteSignal<Option<User>>)>() {
+            Some(t) => Some(t.0),
+            None => None,
+        }
+    };
+    let render_account = move || {
+        view!{
+            <Show when=move || get_user().is_none() || get_user().unwrap()().is_none()> 
+                <a class=style::menu_entry on:click=move |_| set_show_modal(!show_modal())>
+                    <i class="bi bi-person-circle"></i>
+                </a>
+            </Show>
+            <Show when=move || get_user().is_some() && get_user().unwrap()().is_some()>
+                <a class=style::menu_entry href="/account" on:click=move |_| ()>
+                    <i class="bi bi-person-circle"></i>
+                </a>
+            </Show>
+        }
     };
 
     view! {
@@ -62,9 +80,7 @@ pub fn Header() -> impl IntoView {
                 <a class=style::menu_entry href="/">
                     <i class="bi bi-house-door-fill"></i>
                 </a>
-                <a class=style::menu_entry on:click=account_clicked>
-                    <i class="bi bi-person-circle"></i>
-                </a>
+                {render_account()}
             </div>
         </div>
         <AuthForm show_modal set_show_modal/>
