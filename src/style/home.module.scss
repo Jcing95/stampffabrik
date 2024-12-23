@@ -1,10 +1,13 @@
 
+.event {
+    margin-left: auto;
+    margin-right: auto;   
+}
 
 .component {
     flex-direction: column;
     justify-content: center; /* Centers the child horizontally */
     align-items: center; /* Centers the child vertically (optional) */
-
 }
 
 .logo_container {

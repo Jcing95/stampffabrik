@@ -5,15 +5,16 @@ use leptos_router::{
     StaticSegment, WildcardSegment,
 };
 
-use crate::app::components::{Header, Footer};
+use auth::AuthForm;
 use page::{HomePage, AccountPage};
 
-pub mod components;
 pub mod page;
 pub mod auth;
 pub mod database;
 pub mod errors;
 pub mod model;
+
+stylance::import_style!(style, "style/app.module.scss");
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -44,7 +45,45 @@ pub fn App() -> impl IntoView {
     }
 }
 
+#[component]
+pub fn Header() -> impl IntoView {
+    let (show_modal, set_show_modal) = signal(false);
 
+    let account_clicked = move |_| {
+        set_show_modal(!show_modal());
+    };
+
+    view! {
+        <div class=style::hbar>
+            <a href="/">
+                <img src="/assets/stampffabrik_64.png" class=style::nav_icon/>Stampffabrik
+            </a>
+            <div class=style::nav_menu>
+                <a class=style::menu_entry href="/">
+                    <i class="bi bi-house-door-fill"></i>
+                </a>
+                <a class=style::menu_entry on:click=account_clicked>
+                    <i class="bi bi-person-circle"></i>
+                </a>
+            </div>
+        </div>
+        <AuthForm show_modal set_show_modal/>
+    }
+}
+
+#[component]
+pub fn Footer() -> impl IntoView {
+    view! {
+        <div class=style::footer>
+            <span class=style::social>
+                <a class="bi bi-instagram" href="https://www.instagram.com/stampffabrik"></a>
+                <a class="bi bi-facebook" href="https://www.facebook.com/stampffabrik"></a>
+            </span>
+            <a class=style::mail href="mailto:mail@stampffabrik.de">mail@stampffabrik.de</a>
+            <span inner_html="&copy; 2024 Stampffabrik"></span>
+        </div>
+    }
+}
 
 /// 404 - Not Found
 #[component]

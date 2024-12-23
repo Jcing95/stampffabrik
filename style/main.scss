@@ -3,7 +3,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
-
 html, body {
     height: 100%;
     margin: 0;
@@ -16,21 +15,17 @@ html, body {
 
 a {
     scroll-behavior: smooth;
-
     &:link {
         color: white;
         text-decoration: none;
     }
-
     &:visited {
         color: lightgray;
     }
-
     &:hover {
         color: lightgray;
         text-decoration: underline;
     }
-
     &:active {
         color: gray;
         text-decoration: underline;
@@ -67,5 +62,4 @@ body {
     color: white;
     font-size: 48pt;
     letter-spacing: 0.1em;
-
 }

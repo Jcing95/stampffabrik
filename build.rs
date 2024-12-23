@@ -15,6 +15,6 @@ fn main() {
     }
 
     // Copy the necessary file
-    fs::copy("./src/app/components/mixins.scss", "./style/stylance/mixins.scss")
+    fs::copy("./src/style/mixins.scss", "./style/stylance/mixins.scss")
         .expect("Failed to copy the file");
 }

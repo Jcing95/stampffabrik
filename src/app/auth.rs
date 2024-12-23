@@ -28,7 +28,7 @@ pub enum CurrentModal {
     None,
 }
 
-stylance::import_style!(style, "auth.module.scss");
+stylance::import_style!(style, "../style/auth.module.scss");
 
 #[component]
 pub fn AuthForm(
